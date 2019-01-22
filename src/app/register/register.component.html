@@ -1,0 +1,75 @@
+<p>Please enter your data:</p><br>
+<div *ngIf="userExists" class="alert alert-danger">
+    User name already exists. Please choose another one.
+</div>
+<form  #registerForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Username</div>
+        </div>
+        <input
+            [(ngModel)]="user.name" 
+            required
+            minlength="1"
+            maxlength="10"
+            size="16"
+            name="username"
+            #username="ngModel"
+            id="username"
+            type="text"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="username.touched && !username.valid">
+        Username is required
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Password</div>
+        </div>
+        <input
+            [(ngModel)]="user.password" 
+            required
+            minlength="1"
+            maxlength="10"
+            size="16"
+            name="password"
+            #password="ngModel"
+            id="password"
+            type="password"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="password.touched && !password.valid">
+        Password is required
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Confirm Password</div>
+        </div>
+        <input
+            [(ngModel)]="user.confirmPwd" 
+            required
+            appConfirmEqualValidator="password"
+            minlength="1"
+            maxlength="10"
+            size="16"
+            name="confirmPwd"
+            #confirmPwd="ngModel"
+            id="confirmPwd"
+            type="password"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="confirmPwd.touched && confirmPwd.errors?.required">
+        Confirm password is required
+    </div>
+    <div class="alert alert-danger" *ngIf="confirmPwd.errors?.notEqual && !confirmPwd.errors?.required">
+        Passwords do not match 
+    </div>
+    <br>
+    <div class="form-group">
+        <button class="btn btn-primary" [disabled]="!registerForm.valid">Register</button>
+        <a [routerLink]="['/']" class="btn btn-link">Cancel</a>
+    </div>
+</form>

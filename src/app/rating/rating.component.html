@@ -1,0 +1,95 @@
+<div *ngIf="user">
+    <p>Add or update your rating, <b>{{user.name}}</b>!</p><br>
+</div>
+<div *ngIf="ratingAdded" class="alert alert-success alert-dismissible" data-auto-dismiss role="alert">
+    Rating was added/updated!
+</div>
+<form #ratingForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Title</div>
+        </div>
+        <input
+            [(ngModel)]="item.title"
+            required
+            minlength="1"
+            maxlength="16"
+            size="16"
+            name="title"
+            #title="ngModel"
+            id="title"
+            type="text"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="title.touched && !title.valid">
+        Title is required
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Author</div>
+        </div>
+        <input
+            [(ngModel)]="item.author"
+            required
+            minlength="1"
+            maxlength="16"
+            size="16"
+            name="author"
+            #author="ngModel"
+            id="author"
+            type="text"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="author.touched && !author.valid">
+        Author is required
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Category</label>
+        </div>
+        <select class="custom-select" (change)="onSelectCat($event.target.value)" required>
+            <option value="" selected disabled>{{category.name ? category.name : "Choose..."}}</option>
+            <option *ngFor="let categ of categs" [value]="categ.id">{{categ.name}}</option>
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Comments<br>(optional)</div>
+        </div>
+        <textarea
+            [(ngModel)]="rating.review"
+            name="review"
+            #review="ngModel"
+            id="review"
+            type="text"
+            aria-label="Comments"
+            maxlength=200
+            class="form-control"></textarea>
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Rating</div>
+        </div>
+        <stars-rating [rating]='rating.rating' [itemId]='i' [disable]='false' (ratingClick)='ratingComponentClick($event)'></stars-rating>
+        <div class="alert alert-danger" *ngIf="rating.touched && !rating.valid">
+            Rating is required
+        </div>
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Recommend to<br>(optional)</label>
+        </div>
+        <select multiple name="selectedUsers" [(ngModel)]="selectedUsers" class="custom-select">
+            <option *ngFor="let user of users" (click)="onSelectRecom()" [ngValue]="user.id">{{user.name}}</option>
+        </select>
+    </div>
+    <br>
+    <div class="form-group">
+      <button class="btn btn-primary" [disabled]="!ratingForm.valid || !item.cat || !rating.rating">Submit</button>
+      <a [routerLink]="['/home']" class="btn btn-link">Home</a> |
+      <a [routerLink]="['/friends']" class="btn btn-link">Friends</a> |
+      <a [routerLink]="['/']" class="btn btn-link">Logout</a>
+    </div>
+  </form>

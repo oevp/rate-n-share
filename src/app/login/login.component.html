@@ -1,0 +1,51 @@
+<p>Please log in or register!</p><br>
+<div *ngIf="invalidLogin" class="alert alert-danger">
+    Invalid username and/or password
+</div>
+<form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Username</div>
+        </div>
+        <input
+            [(ngModel)]="user.name"
+            required
+            minlength="1"
+            maxlength="10"
+            size="10"
+            name="username"
+            #username="ngModel"
+            id="username"
+            type="text"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="username.touched && !username.valid">
+        Username is required
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Password</div>
+        </div>
+        <input
+            [(ngModel)]="user.password"
+            required
+            minlength="1"
+            maxlength="10"
+            size="10"
+            name="password"
+            #password="ngModel"
+            id="password"
+            type="password"
+            class="form-control form-control-inline"
+            autocomplete="off">
+    </div>
+    <div class="alert alert-danger" *ngIf="password.touched && !password.valid">
+        Password is required
+    </div>
+    <br>
+    <div class="form-group">
+        <button class="btn btn-primary" [disabled]="!loginForm.valid">Login</button>
+        <a [routerLink]="['/register']" class="btn btn-link">Register</a>
+    </div>
+</form>

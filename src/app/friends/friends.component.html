@@ -1,0 +1,45 @@
+<p>Your friends' last ratings:</p>
+<small>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Friend</th>
+        <th scope="col">Title</th>
+        <th scope="col">Author</th>
+        <th scope="col">Category</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Review</th>
+        <th scope="col">Recommended To</th>
+        <th scope="col">Rating Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let rating of ratings; let i=index">
+        <tr *ngIf="rating.user!=user.name">
+          <td>{{rating.user}}</td>
+          <td title="Add or Update Rating">
+            <a [routerLink]="" class="text-dark" (click)='reviewClick(i)'>{{rating.title}}</a>
+          </td>
+          <td>{{rating.author}}</td>
+          <td>{{rating.cat}}</td>
+          <td>
+            <stars-rating [rating]='rating.rating' [itemId]='i' [disable]='true'></stars-rating>
+          </td>
+          <td title="{{rating.review}}">{{rating.review | summary:truncateFriendsReviewsAt}}</td>
+          <td>
+            <ng-container *ngFor="let rec of rating.recommendedTo">{{rec}}<br></ng-container>
+          </td>
+          <td>{{rating.date}}</td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</small>
+<br>
+<form #homeForm="ngForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <a [routerLink]="['/home']" class="btn btn-link">Home</a> |
+    <a [routerLink]="['/rating']" class="btn btn-link">Add Rating</a> |
+    <a [routerLink]="['/']" class="btn btn-link">Logout</a>
+  </div>
+</form>

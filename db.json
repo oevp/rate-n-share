@@ -1,0 +1,212 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "octavi",
+      "password": "1234",
+      "lastLogin": 1548141568873
+    },
+    {
+      "id": 2,
+      "name": "lulu",
+      "password": "1234",
+      "lastLogin": 1548141556342
+    },
+    {
+      "id": 3,
+      "name": "frank",
+      "password": "1234",
+      "lastLogin": 1547719801244
+    },
+    {
+      "id": 4,
+      "name": "joe",
+      "password": "1234",
+      "lastLogin": 1547825882941
+    },
+    {
+      "id": 5,
+      "name": "lola",
+      "password": "1234",
+      "lastLogin": 1546617781871
+    },
+    {
+      "id": 6,
+      "name": "andreu",
+      "password": "1234",
+      "lastLogin": 1546617781871
+    },
+    {
+      "id": 7,
+      "name": "dario",
+      "password": "1234",
+      "lastLogin": 1546617781871
+    },
+    {
+      "id": 8,
+      "name": "agnes",
+      "password": "1234",
+      "lastLogin": 1546617781871
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Film"
+    },
+    {
+      "id": 2,
+      "name": "TV Series"
+    },
+    {
+      "id": 3,
+      "name": "Book"
+    },
+    {
+      "id": 4,
+      "name": "Music"
+    },
+    {
+      "id": 5,
+      "name": "Game"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "title": "Harry Potter",
+      "author": "Joanne Rowling",
+      "cat": 3
+    },
+    {
+      "id": 2,
+      "title": "Roma",
+      "author": "Alfonso Cuarón",
+      "cat": 1
+    },
+    {
+      "id": 3,
+      "title": "Fortnite",
+      "author": "Epic Games",
+      "cat": 5
+    },
+    {
+      "id": 4,
+      "title": "The Wall",
+      "author": "Pink Floyd",
+      "cat": 4
+    },
+    {
+      "id": 5,
+      "title": "The Handmaid's Tale",
+      "author": "Netflix",
+      "cat": 2
+    }
+  ],
+  "ratings": [
+    {
+      "id": 1,
+      "item": 1,
+      "user": 1,
+      "date": 1548094485004,
+      "rating": 5,
+      "review": "Best book I ever read hands down!!"
+    },
+    {
+      "id": 3,
+      "item": 1,
+      "user": 3,
+      "date": 1546617781871,
+      "rating": 2
+    },
+    {
+      "id": 4,
+      "item": 2,
+      "user": 1,
+      "date": 1547836262854,
+      "rating": 3
+    },
+    {
+      "id": 5,
+      "item": 3,
+      "user": 1,
+      "date": 1547836251471,
+      "rating": 5,
+      "review": "Frankly it's the BEST game I ever played!!!"
+    },
+    {
+      "id": 6,
+      "item": 3,
+      "user": 2,
+      "date": 1548141562602,
+      "rating": 4,
+      "review": "Good one!!"
+    },
+    {
+      "id": 7,
+      "item": 2,
+      "user": 2,
+      "date": 1548077960274,
+      "rating": 3,
+      "review": ""
+    }
+  ],
+  "recommendations": [
+    {
+      "id": 3,
+      "item": 1,
+      "user": 1,
+      "recommendsTo": 4,
+      "date": 1546617781871
+    },
+    {
+      "id": 5,
+      "item": 2,
+      "user": 1,
+      "recommendsTo": 2,
+      "date": 1546617781871
+    },
+    {
+      "id": 6,
+      "item": 2,
+      "user": 1,
+      "recommendsTo": 4,
+      "date": 1546617781871
+    },
+    {
+      "id": 7,
+      "item": 2,
+      "user": 1,
+      "recommendsTo": 5,
+      "date": 1546617781871
+    },
+    {
+      "id": 8,
+      "item": 1,
+      "user": 1,
+      "recommendsTo": 8,
+      "date": 1547825738105
+    },
+    {
+      "id": 9,
+      "item": 1,
+      "user": 1,
+      "recommendsTo": 2,
+      "date": 1547825811704
+    },
+    {
+      "id": 10,
+      "item": 1,
+      "user": 1,
+      "recommendsTo": 3,
+      "date": 1548094485110
+    },
+    {
+      "id": 11,
+      "item": 3,
+      "user": 2,
+      "recommendsTo": 5,
+      "date": 1548141562713
+    }
+  ]
+}
