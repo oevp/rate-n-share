@@ -64,9 +64,9 @@ export class FriendsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log("Home: init");
+    console.log("Friends: init");
     if(!this.dataStorage.user) {
-      console.log("Home: user is not authenticated");
+      console.log("Friends: user is not authenticated");
       this.router.navigate(['/']);
       return;
     }
@@ -81,8 +81,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
       map(([categories, ratings]) => {
         this.categories = categories as Category[]; //store categories and ratings for later use
         this.ratingsDB = ratings as Rating[];
-        console.log("Home: retrieved categories", this.categories);
-        console.log("Home: retrieved others ratings", this.ratingsDB);
+        console.log("Friends: retrieved categories", this.categories);
+        console.log("Friends: retrieved others ratings", this.ratingsDB);
       })
     ).subscribe(() => {
       this.getItems();
@@ -90,7 +90,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   getItems() {
-    console.log("Home: getItems");
+    console.log("Friends: getItems");
     let obsItems = [];
     let inserted: number[] = [];
     this.ratingsDB.forEach(rating => { //create list of items to retrieve
@@ -102,14 +102,14 @@ export class FriendsComponent implements OnInit, OnDestroy {
     forkJoin(obsItems).pipe(
       map(items => {
         this.items = items as Item[]; //store items for later use
-        console.log("Home: retrieved items", this.items);   
+        console.log("Friends: retrieved items", this.items);   
       })).subscribe(() => {
         this.getRecomms();
     });
   }
 
   getRecomms() {
-    console.log("Home: getRecomms");
+    console.log("Friends: getRecomms");
     let obsRecomms = [];
     this.ratingsDB.forEach(rating => { //create list of recommendations to retrieve
       obsRecomms.push(this.recommendationService.getWithProps("user=" + rating.user + "&item=" + rating.item));
@@ -120,14 +120,14 @@ export class FriendsComponent implements OnInit, OnDestroy {
         this.recomms = recomm.reduce(function(a, b) {
           return a.concat(b);
         }, []);
-        console.log("Home: retrieved recomms", this.recomms);   
+        console.log("Friends: retrieved recomms", this.recomms);   
       })).subscribe(() => {
         this.getUsers();
     });
   }
 
   getUsers() {
-    console.log("Home: getUsers");
+    console.log("Friends: getUsers");
     let observables = [];
     let inserted: number[] = [];
     this.ratingsDB.forEach(rating => { //create list of users to retrieve
@@ -144,7 +144,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     });
     forkJoin(observables).subscribe( users => {
       this.users = users; //store users for later use
-      console.log("Home: retrieved users", this.users);
+      console.log("Friends: retrieved users", this.users);
 
       //Prepare ratings array for template:
       this.ratingsDB.forEach(rating => {
@@ -166,7 +166,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   getRecommendations(item: number, user: number): string[] {
-    console.log("Home: enter getRecommendations", item, user);
     let recs: string[] = [];
     this.recomms.forEach(el=> {
       if(el.user==user && el.item==item) {
@@ -181,7 +180,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   reviewClick(ratingPos: number): void {
-    console.log("Home: enter reviewClick");
+    console.log("Friends: enter reviewClick");
     this.item = new Item();
     this.rating = new Rating();
     this.category = new Category();
