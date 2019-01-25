@@ -27,6 +27,7 @@ export class RatingComponent implements OnInit, OnDestroy {
   users: User[];
   ratingAdded: boolean = false;
   selectedUsers: number[];
+  ratingDate: string;
 
   constructor(
     private ratingService: RatingService,
@@ -47,13 +48,16 @@ export class RatingComponent implements OnInit, OnDestroy {
           return this.ratingService.updateOrCreateRating(this.item.id, this.user.id, this.rating.rating, this.rating.review);
         }
       }),
-      concatMap(() => {
-          return this.recommendationService.updateOrCreateRecommendations(this.item.id, this.user.id, this.selectedUsers);
+      concatMap((rating) => {
+        this.rating = rating;
+        this.ratingDate = new Date(this.rating.date).toLocaleString();
+        return this.recommendationService.updateOrCreateRecommendations(this.item.id, this.user.id, this.selectedUsers);
       })
     ).subscribe(() => {
       this.ratingAdded=true;
       setTimeout(() => {
         this.ratingAdded=false;
+        this.clearRating();
       }, 2000);
     });
   }
@@ -84,8 +88,12 @@ export class RatingComponent implements OnInit, OnDestroy {
     this.item = this.dataStorage.item ? this.dataStorage.item : new Item();
     this.rating = this.dataStorage.rating ? this.dataStorage.rating : new Rating();
     this.category = this.dataStorage.category ? this.dataStorage.category : new Category();
+    console.log("item", this.item);
+    console.log("rating", this.rating);
+    console.log("category", this.category);
     this.getUsers();
     if (this.item.id) this.getRecomms();
+    this.ratingDate = this.dataStorage.ratingDate;
   }
 
   getUsers() {
@@ -110,8 +118,22 @@ export class RatingComponent implements OnInit, OnDestroy {
       });
   }
 
+  clearRating() {
+    console.log("Rating: clearRating");
+    this.dataStorage.item = new Item();
+    this.dataStorage.rating = new Rating();
+    this.dataStorage.category = new Category();
+    this.dataStorage.ratingDate = '';
+    this.item = new Item();
+    this.rating = new Rating();
+    this.category = new Category();
+    this.ratingDate = '';
+    this.selectedUsers = [];
+  }
+
   ngOnDestroy() {
     console.log("Rating: destroy");
     this.dataStorage.user = this.user;
+    this.clearRating();
   }
 }

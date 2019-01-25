@@ -1,22 +1,21 @@
-import { RecommendationService } from './../services/recommendation.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+import * as commonVars from '../common/global';
+import { TemplateRating } from '../common/global';
 import { Item } from '../common/item';
-import { NotFoundError } from '../common/not-found-error';
 import { Rating } from '../common/rating';
+import { Recommendation } from '../common/recommendation';
 import { User } from '../common/user';
 import { DataStorageService } from '../services/datastorage.service';
 import { ItemService } from '../services/item.service';
 import { RatingService } from '../services/rating.service';
 import { RouterExtService } from '../services/routerext.service';
-import { AppError } from './../common/app-error';
 import { Category } from './../common/category';
 import { CategoryService } from './../services/category.service';
+import { RecommendationService } from './../services/recommendation.service';
 import { UserService } from './../services/user.service';
-import { Recommendation } from '../common/recommendation';
-import * as commonVars from '../common/global';
 
 @Component({
   selector: 'home',
@@ -25,6 +24,8 @@ import * as commonVars from '../common/global';
 
 export class HomeComponent implements OnInit, OnDestroy {
 
+  isDataLoaded: boolean = false;
+
   //For communication between components
   user: User;
   item: Item;
@@ -32,29 +33,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   category: Category;
   lastLogin: string;
 
-  ratings: { //Array passed to component template
-    "id": number,
-    "user": string,
-    "title": string,
-    "author": string,
-    "cat": string,
-    "rating": number, 
-    "date"?: string,
-    "review"?: string,
-    "itemId"?: number //for item removal
-  }[] = [];
+  ratings: TemplateRating[] = [];
 
   //Arrays to store data in memory to avoid duplicate requests
   categories: Category[] = [];
   items: Item[] = [];
   users: User[] = [];
+  recomms: Recommendation[] = [];
   //Ratings handling
   ratingsDBMine: Rating[] = [];
   ratingsDBOthers: Rating[] = [];
   ratingsDBAll: Rating[] = [];
-
-  truncateOwnReviewsAt = commonVars.truncateOwnReviewsAt;
-  truncateFriendsReviewsAt = commonVars.truncateFriendsReviewsAt;
   
   constructor(
     private ratingService: RatingService,
@@ -101,18 +90,37 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getItems() {
     console.log("Home: getItems");
-    let observables = [];
+    let obsItems = [];
     let inserted: number[] = [];
     this.ratingsDBAll.forEach(rating => { //create list of items to retrieve
       if (!inserted.find(el => el == rating.item)) {
-        observables.push(this.itemService.get(rating.item));
+        obsItems.push(this.itemService.get(rating.item));
         inserted.push(rating.item);
       }
     });
-    forkJoin(observables).subscribe( items => {
+    forkJoin(obsItems).subscribe( items => {
       this.items = items; //store items for later use
       console.log("Home: retrieved items", this.items);
-      this.getUsers();
+      this.dataStorage.items = this.items;
+      this.getRecomms();
+    });
+  }
+
+  getRecomms() {
+    console.log("Friends: getRecomms");
+    let obsRecomms = [];
+    this.ratingsDBAll.forEach(rating => { //create list of recommendations to retrieve
+      obsRecomms.push(this.recommendationService.getWithProps("user=" + rating.user + "&item=" + rating.item));
+    });
+    forkJoin(obsRecomms).pipe(
+      map(recomm => {
+        //Flatten response
+        this.recomms = recomm.reduce(function(a, b) {
+          return a.concat(b);
+        }, []);
+        console.log("Friends: retrieved recomms", this.recomms);   
+      })).subscribe(() => {
+        this.getUsers();
     });
   }
 
@@ -124,6 +132,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (!inserted.find(el => el == rating.user)) {
         observables.push(this.userService.get(rating.user));
         inserted.push(rating.user);
+      }
+    });
+    this.recomms.forEach(recomm => { //add 'recommendsTo' users
+      if (!inserted.find(el => el == recomm.recommendsTo)) {
+        observables.push(this.userService.get(recomm.recommendsTo));
+        inserted.push(recomm.recommendsTo);
       }
     });
     forkJoin(observables).subscribe( users => {
@@ -141,86 +155,31 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.getCategory(this.getItem(rating.item).cat).name : "Null",
           "rating": rating.rating,
           "review": rating.review,
+          "recommendedTo": this.getRecommendations(rating.item, rating.user),
           "date":   new Date(rating.date).toLocaleString(),
           "itemId": this.getItem(rating.item) ? this.getItem(rating.item).id : null
         });
       });
+      this.dataStorage.ratings = this.ratings;
+      this.isDataLoaded = true;
     });
   }
 
-  ratingComponentClick(clickObj: any): void {
-    console.log("Home: ratingComponentClick", clickObj);
-    this.ratingService.updateRating(this.ratings[clickObj.itemId].id, clickObj.rating)
-      .subscribe((r: Rating) => {
-        this.ratings[clickObj.itemId].date = new Date(r.date).toLocaleString();
-      },
-      (error: AppError) => {
-        if (error instanceof NotFoundError)
-          alert('Database server problem');
-        else throw error;
+  getRecommendations(item: number, user: number): string[] {
+    let recs: string[] = [];
+    this.recomms.forEach(el=> {
+      if(el.user==user && el.item==item) {
+        recs.push(this.getUser(el.recommendsTo) ? this.getUser(el.recommendsTo).name : el.recommendsTo.toString());
       }
-    );
-    this.ratings[clickObj.itemId].rating = clickObj.rating;
+    });
+    return recs;
   }
 
-  deleteRatingClick(ratingPos: number): void {
-    console.log("Home: deleteRatingClick with position:", ratingPos, "and id:", this.ratings[ratingPos].id);
-    let item = this.ratings[ratingPos].itemId;
-    this.ratingService.delete(this.ratings[ratingPos].id).pipe(
-      concatMap(() => {
-        console.log("Home: deleteRatingClick: rating deleted:", this.ratings[ratingPos].id);
-        this.ratings.splice(ratingPos,1);
-        return this.ratingService.getWithProps("item=" + item); //check if other ratings exist for the item
-      }),
-      concatMap(ratings => {
-        if(!ratings || (Object.keys(ratings).length == 0)) {
-          console.log("Home: deleteRatingClick: no other ratings, delete item:", item);
-          return this.itemService.delete(item);
-        }
-        console.log("Home: deleteRatingClick: other ratings exist, do not delete item");
-        return of(ratings); //If we don't return an Observable we get an error
-      }),
-      concatMap((ratings) => {
-        console.log("Home: deleteRatingClick: getRecomms with user and item", this.user.id, item);
-        this.recommendationService.getWithProps("user=" + this.user.id + "&item=" + item)
-          .subscribe((recomms: Recommendation[]) => {
-            recomms.map(r => {
-              this.recommendationService.delete(r.id).subscribe();
-            });
-          });
-        return of(ratings);
-      })
-    ).subscribe();
-  }
-
-  ratingExists(user:number, item:number) {
-    return this.ratingService.getWithProps("item=" + item + "&user=" + user);
-  }
-
-  reviewClick(ratingPos: number): void {
-    console.log("Home: enter reviewClick");
-    this.item = new Item();
-    this.rating = new Rating();
-    this.category = new Category();
-    this.item = this.items.find(el => el.id == this.ratings[ratingPos].itemId);
-    this.category.name = this.ratings[ratingPos].cat;
-    let foundRating = this.ratings.find(r =>
-      (r.user==this.user.name && r.itemId==this.item.id)
-    );
-    if(foundRating) { //item rated by user and present in the ratings array
-      this.rating.rating = foundRating.rating;
-      this.rating.review = foundRating.review;
-    }
-    else { //check if item is rated by user even if not present in ratings array
-      this.ratingExists(this.user.id, this.item.id)
-        .subscribe(rating => {
-          console.log("ratingExists returns", rating);
-          if(rating && (Object.keys(rating).length > 0)) {
-            this.rating.rating = rating[0].rating;
-            this.rating.review = rating[0].review;
-          }
-        });
-    }
+  addRatingClick() {
+    console.log("Home: addRatingClick");
+    this.dataStorage.item = new Item();
+    this.dataStorage.rating = new Rating();
+    this.dataStorage.category = new Category();
     this.router.navigate(['/rating']);
   }
 
@@ -241,10 +200,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    console.log("Home: destroy");
     this.dataStorage.user = this.user;
     this.dataStorage.categs = this.categories;
-    this.dataStorage.item = this.item;
-    this.dataStorage.rating = this.rating;
-    this.dataStorage.category = this.category;
   }
 }

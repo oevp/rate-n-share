@@ -1,3 +1,4 @@
+import { TemplateRating } from './../common/global';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -29,18 +30,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
   category: Category;
   lastLogin: string;
 
-  ratings: { //Array passed to component template
-    "id": number,
-    "user": string,
-    "title": string,
-    "author": string,
-    "cat": string,
-    "rating": number, 
-    "date"?: string,
-    "review"?: string,
-    "recommendedTo"?: string[],
-    "itemId"?: number //for item removal
-  }[] = [];
+  ratings: TemplateRating[] = [];
 
   //Arrays to store data in memory to avoid duplicate requests
   categories: Category[] = [];
@@ -49,9 +39,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
   recomms: Recommendation[] = [];
   //Ratings handling
   ratingsDB: Rating[] = [];
-
-  truncateOwnReviewsAt = commonVars.truncateOwnReviewsAt;
-  truncateFriendsReviewsAt = commonVars.truncateFriendsReviewsAt;
   
   constructor(
     private ratingService: RatingService,
@@ -99,12 +86,11 @@ export class FriendsComponent implements OnInit, OnDestroy {
         inserted.push(rating.item);
       }
     });
-    forkJoin(obsItems).pipe(
-      map(items => {
-        this.items = items as Item[]; //store items for later use
-        console.log("Friends: retrieved items", this.items);   
-      })).subscribe(() => {
-        this.getRecomms();
+    forkJoin(obsItems).subscribe( items => {
+      this.items = items; //store items for later use
+      console.log("Home: retrieved items", this.items);
+      this.dataStorage.items = this.items;
+      this.getRecomms();
     });
   }
 
@@ -162,6 +148,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
           "itemId": this.getItem(rating.item) ? this.getItem(rating.item).id : null
         });
       });
+      this.dataStorage.ratings = this.ratings;
     });
   }
 
@@ -175,34 +162,11 @@ export class FriendsComponent implements OnInit, OnDestroy {
     return recs;
   }
 
-  ratingExists(user:number, item:number) {
-    return this.ratingService.getWithProps("item=" + item + "&user=" + user);
-  }
-
-  reviewClick(ratingPos: number): void {
-    console.log("Friends: enter reviewClick");
-    this.item = new Item();
-    this.rating = new Rating();
-    this.category = new Category();
-    this.item = this.items.find(el => el.id == this.ratings[ratingPos].itemId);
-    this.category.name = this.ratings[ratingPos].cat;
-    let foundRating = this.ratings.find(r =>
-      (r.user==this.user.name && r.itemId==this.item.id)
-    );
-    if(foundRating) { //item rated by user and present in the ratings array
-      this.rating.rating = foundRating.rating;
-      this.rating.review = foundRating.review;
-    }
-    else { //check if item is rated by user even if not present in ratings array
-      this.ratingExists(this.user.id, this.item.id)
-        .subscribe(rating => {
-          console.log("ratingExists returns", rating);
-          if(rating && (Object.keys(rating).length > 0)) {
-            this.rating.rating = rating[0].rating;
-            this.rating.review = rating[0].review;
-          }
-        });
-    }
+  addRatingClick() {
+    console.log("Friends: addRatingClick");
+    this.dataStorage.item = new Item();
+    this.dataStorage.rating = new Rating();
+    this.dataStorage.category = new Category();
     this.router.navigate(['/rating']);
   }
 
@@ -223,10 +187,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    console.log("Friends: destroy");
     this.dataStorage.user = this.user;
     this.dataStorage.categs = this.categories;
-    this.dataStorage.item = this.item;
-    this.dataStorage.rating = this.rating;
-    this.dataStorage.category = this.category;
   }
 }

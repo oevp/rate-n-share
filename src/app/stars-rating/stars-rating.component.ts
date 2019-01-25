@@ -8,20 +8,20 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 export class StarsRatingComponent implements OnInit {
   @Input() rating: number;
-  @Input() itemId: number;
+  @Input() ratingId: number;
   @Input() disable: boolean;
   @Output() ratingClick: EventEmitter<any> = new EventEmitter<any>();
 
   inputName: string;
 
   ngOnInit() {
-    this.inputName = this.itemId + '_rating';
+    this.inputName = this.ratingId + '_rating';
   }
 
   onClick(rating: number): void {
     this.rating = rating;
     this.ratingClick.emit({
-      itemId: this.itemId,
+      ratingId: this.ratingId,
       rating: rating
     })
   }

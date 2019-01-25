@@ -1,0 +1,77 @@
+<small>
+  <table class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <ng-container *ngIf="!ownRatings">
+          <th (click)="setOrder('user')">Friend
+            <ng-container *ngIf="order==='user'">
+              <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+              <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+            </ng-container>
+          </th>
+        </ng-container>
+        <th (click)="setOrder('title')">Title
+          <ng-container *ngIf="order==='title'">
+            <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+            <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+          </ng-container>
+        </th>
+        <th (click)="setOrder('author')">Author
+          <ng-container *ngIf="order==='author'">
+            <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+            <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+          </ng-container>
+        </th>
+        <th (click)="setOrder('category')">Category
+          <ng-container *ngIf="order==='category'">
+            <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+            <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+          </ng-container>
+        </th>
+        <th (click)="setOrder('rating')">Rating
+          <ng-container *ngIf="order==='rating'">
+            <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+            <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+          </ng-container>
+        </th>
+        <th scope="col">Review</th>
+        <th scope="col">Recommended To</th>
+        <th (click)="setOrder('date')"> Date
+          <ng-container *ngIf="order==='date'">
+            <div [hidden]="reverse" class="material-icons">arrow_drop_down</div>
+            <div [hidden]="!reverse" class="material-icons">arrow_drop_up</div>
+          </ng-container>
+        </th>
+        <th *ngIf="ownRatings" scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let rating of ratings | orderBy: order:reverse:'case-insensitive'">
+        <tr *ngIf="(ownRatings && rating.user==user.name) || (!ownRatings && rating.user!=user.name)">
+          <td *ngIf="!ownRatings">{{rating.user}}</td>
+          <td title="Update Rating">
+            <a [routerLink]="" class="text-dark" (click)='reviewClick(rating.id)'>{{rating.title}}</a>
+          </td>
+          <td>{{rating.author}}</td>
+          <td>{{rating.cat}}</td>
+          <td>
+              <stars-rating [rating]='rating.rating' [ratingId]='rating.id' [disable]='!ownRatings' (ratingClick)='starsRatingComponentClick($event)'></stars-rating>
+          </td>
+          <td title="{{rating.review}}">
+            <div *ngIf="ownRatings && rating.user==user.name">
+              <a [routerLink]="" class="text-dark" (click)='reviewClick(rating.id)'>{{rating.review | summary:truncateOwnReviewsAt}}</a>
+            </div>
+            <div *ngIf="!ownRatings && rating.user!=user.name">{{rating.review | summary:truncateFriendsReviewsAt}}</div>
+          </td>
+          <td>
+            <ng-container *ngFor="let rec of rating.recommendedTo">{{rec}}<br></ng-container>
+          </td>
+          <td>{{rating.date}}</td>
+          <td *ngIf="ownRatings" title="Delete Rating">
+            <a [routerLink]="" class="btn btn-light" (click)='deleteRatingClick(rating.id)'><i class="material-icons">delete</i></a>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</small>

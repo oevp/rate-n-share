@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { Recommendation } from '../common/recommendation';
 import { DataService } from './data.service';
@@ -16,6 +16,7 @@ export class RecommendationService extends DataService {
   }
 
   updateOrCreateRecommendations(item: number, user: number, selectedUsers: number[]) {
+    if(!selectedUsers) selectedUsers=[];
     console.log("updateOrCreateRecommendations: enter", item, user, selectedUsers);
     //1. Get user recommendations from DB
     return this.getWithProps("user=" + user + "&item=" + item).pipe(
@@ -42,9 +43,12 @@ export class RecommendationService extends DataService {
             console.log("updateOrCreateRecommendations: add create", sel);
           }
         });
-        if (observables)
+        if (observables.length>0)
           return forkJoin(observables);
-        else console.log("updateOrCreateRecommendations: no need to update recommendations");
+        else {
+          console.log("updateOrCreateRecommendations: no need to update recommendations");
+          return of(recommsDB);
+        }
       }
     ));
   }

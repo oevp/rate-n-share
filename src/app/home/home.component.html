@@ -1,87 +1,26 @@
-<div *ngIf="user">
-  Welcome back, <b>{{user.name}}</b>!<br>
-</div>
-<i>
-<div *ngIf="lastLogin">
-  (Last login on {{lastLogin}})
-</div>
-</i>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" [routerLink]="['/home']"><h3>rate n share!</h3></a>
+  <ul class="navbar-nav">
+    <li class="nav-item active"><a [routerLink]="['/home']" class="nav-link">Home</a></li>
+    <li class="nav-item"><a [routerLink]="['/friends']" class="nav-link">Friends</a></li>
+    <li class="nav-item"><a [routerLink]="['/rating']" class="nav-link">Add Rating</a></li>
+    <li class="nav-item"><a [routerLink]="['/']" class="nav-link">Logout</a></li>
+  </ul>
+</nav>
 <br>
-<p>Your last ratings:</p>
-<small>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">Title</th>
-        <th scope="col">Author</th>
-        <th scope="col">Category</th>
-        <th scope="col">Rating</th>
-        <th scope="col">Review</th>
-        <th scope="col">Rating Date</th>
-        <th scope="col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let rating of ratings; let i=index">
-        <tr *ngIf="rating.user==user.name">
-          <td title="Update Rating">
-            <a [routerLink]="" class="text-dark" (click)='reviewClick(i)'>{{rating.title}}</a>
-          </td>
-          <td>{{rating.author}}</td>
-          <td>{{rating.cat}}</td>
-          <td>
-              <stars-rating [rating]='rating.rating' [itemId]='i' [disable]='false' (ratingClick)='ratingComponentClick($event)'></stars-rating>
-          </td>
-          <td title="{{rating.review}}">
-            <a [routerLink]="" class="text-dark" (click)='reviewClick(i)'>{{rating.review | summary:truncateOwnReviewsAt}}</a>
-          </td>
-          <td>{{rating.date}}</td>
-          <td title="Delete Rating">
-            <a [routerLink]="" class="btn btn-light" (click)='deleteRatingClick(i)'><i class="material-icons">delete</i></a>
-          </td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-</small>
-<p>Your friends' last ratings:</p>
-<small>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">Friend</th>
-        <th scope="col">Title</th>
-        <th scope="col">Author</th>
-        <th scope="col">Category</th>
-        <th scope="col">Rating</th>
-        <th scope="col">Review</th>
-        <th scope="col">Rating Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let rating of ratings; let i=index">
-        <tr *ngIf="rating.user!=user.name">
-          <td>{{rating.user}}</td>
-          <td title="Add or Update Rating">
-            <a [routerLink]="" class="text-dark" (click)='reviewClick(i)'>{{rating.title}}</a>
-          </td>
-          <td>{{rating.author}}</td>
-          <td>{{rating.cat}}</td>
-          <td>
-            <stars-rating [rating]='rating.rating' [itemId]='i' [disable]='true'></stars-rating>
-          </td>
-          <td title="{{rating.review}}">{{rating.review | summary:truncateFriendsReviewsAt}}</td>
-          <td>{{rating.date}}</td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-</small>
-<br>
-<form #homeForm="ngForm" (ngSubmit)="onSubmit()">
-  <div class="form-group">
-      <a [routerLink]="['/friends']" class="btn btn-link">Friends</a> |
-    <a [routerLink]="['/rating']" class="btn btn-link">Add Rating</a> |
-    <a [routerLink]="['/']" class="btn btn-link">Logout</a>
+<div *ngIf="isDataLoaded">
+  <div *ngIf="user">
+    Welcome back, <b>{{user.name}}</b>!<br>
   </div>
-</form>
+  <i>
+  <div *ngIf="lastLogin">
+    (Last login on {{lastLogin}})
+  </div>
+  </i>
+  <br>
+  <p>Your last ratings:</p>
+  <ratings-table [ownRatings]='true'></ratings-table>
+  <p>Your friends' last ratings:</p>
+  <ratings-table [ownRatings]='false'></ratings-table>
+  <br>
+</div>

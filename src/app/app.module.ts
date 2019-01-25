@@ -22,6 +22,8 @@ import { ConfirmEqualValidatorDirective } from './common/confirm-equal-validator
 import { StarsRatingComponent } from './stars-rating/stars-rating.component';
 import { SummaryPipe } from './common/summary.pipe';
 import { FriendsComponent } from './friends/friends.component';
+import { RatingsTableComponent } from './ratings-table/ratings-table.component';
+import { OrderModule } from 'ngx-order-pipe';
 
 @NgModule({
   declarations: [
@@ -34,13 +36,15 @@ import { FriendsComponent } from './friends/friends.component';
     AppComponent,
     ConfirmEqualValidatorDirective,
     SummaryPipe,
-    FriendsComponent
+    FriendsComponent,
+    RatingsTableComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    Routing
+    Routing,
+    OrderModule
   ],
   providers: [
     UserService,
